@@ -7,11 +7,11 @@ from .validators import validate_file_extension
 
 class UserSerializer(serializers.ModelSerializer):
   email = serializers.EmailField(validators=[UniqueValidator(queryset=User.objects.all(), message=u'1')],
-                                 error_messages={'required': u'2', 'blank': u'3'})
+                                 error_messages={'required': u'2', 'blank': u'3', 'invalid': u'4'})
   username = serializers.CharField(max_length=150, validators=[UniqueValidator(queryset=User.objects.all(), message=u'1')],
                                    error_messages={'required': u'2', 'blank': u'3'})
   password = serializers.CharField(min_length=8, max_length=100, write_only=True, 
-                                   error_messages={'required': u'2', 'blank': u'3', 'min_length': u'4'})
+                                   error_messages={'required': u'2', 'blank': u'3', 'min_length': u'5'})
 
   class Meta:
     model = User

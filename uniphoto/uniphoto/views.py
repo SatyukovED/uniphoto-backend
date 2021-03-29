@@ -6,9 +6,9 @@ from django.conf import settings
 from django.db.models import F
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
+import os
 from .models import File
 from .serializers import UserSerializer, TrialLicenseCheckSerializer, UserFilesSerializer, AllFilesSerializer
-import os
 
 
 class UserRegistration(generics.CreateAPIView):
