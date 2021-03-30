@@ -2,12 +2,12 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.authtoken.models import Token
-from uniphoto.models import File
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.utils import timezone
 import math
 import json
+from uniphoto.models import File
 
 
 NUMBER_NEXT_PAGES_TO_CHECK = 2
@@ -139,7 +139,7 @@ class TrialLicenseCheckViewTests(APITestCase):
 
   def test_check_trial_license_with_non_default_license_duratio(self):
     """
-    Test attempt to check trial license  with default license duration (!= 30 days).
+    Test attempt to check trial license with non default license duration (!= 30 days).
     """
     # test user
     test_username = 'azalia'

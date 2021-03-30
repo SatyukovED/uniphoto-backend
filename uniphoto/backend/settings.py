@@ -28,7 +28,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_extensions',
-    'uniphoto',
+    'uniphoto.apps.UniphotoConfig',
 ]
 
 MIDDLEWARE = [
