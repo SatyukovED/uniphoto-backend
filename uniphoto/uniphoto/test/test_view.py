@@ -15,13 +15,6 @@ from uniphoto.models import File
 NUMBER_NEXT_PAGES_TO_CHECK = 2
 
 
-"""
-  TODO:
-  Test
-    - DeleteFileView 
-"""
-
-
 class UserDetailsViewTests(APITestCase):
 
   def test_get_user_details_with_valid_token(self):
@@ -455,6 +448,7 @@ class PostFileViewTests(APITestCase):
     """
     Test attempt to create file with invalid token.
     """
+    file_counts = File.objects.all().count()
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
     # url for request
@@ -464,11 +458,13 @@ class PostFileViewTests(APITestCase):
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(File.objects.all().count(), file_counts)
 
   def test_create_file_without_token_header(self):
     """
     Test attempt to create file without token header.
     """
+    file_counts = File.objects.all().count()
     # url for request
     url = '/post-file'
     # post request to url
@@ -476,6 +472,7 @@ class PostFileViewTests(APITestCase):
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
+    self.assertEqual(File.objects.all().count(), file_counts)
 
   def test_create_file_with_unsupported_extension(self):
     """
@@ -564,4 +561,101 @@ class PostFileViewTests(APITestCase):
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
     self.assertEqual(response.data, {'file': [ErrorDetail('No file was submitted.', code='required')]})
+    self.assertEqual(File.objects.all().count(), file_counts)
+
+
+class DeleteFileViewTests(APITestCase):
+    
+  def test_delete_file_with_valid_token(self):
+    """
+    Test attempt to delete file with valid token.
+    """
+    file_counts = File.objects.all().count()
+    # test username
+    test_username = 'azalia'
+    # test file
+    file_to_delete_id = 45
+    file_to_delete = File.objects.get(id=file_to_delete_id) 
+    # we can force authenticate user to bypass explicit token usage when we don't need to test it
+    user = User.objects.get(username=test_username)
+    self.client.force_authenticate(user=user)
+    # url for request 
+    url = '/delete-file/'+str(file_to_delete_id)
+    # delete request to url 
+    response = self.client.delete(url)
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    self.assertEqual(response.data['message'], 'File was deleted successfully.')
+    self.assertEqual(File.objects.all().count(), file_counts - 1)
+    self.assertFalse(File.objects.all().filter(id=file_to_delete_id).exists())
+    self.assertFalse(os.path.exists(os.path.join(settings.MEDIA_ROOT, file_to_delete.file.name)))
+
+  def test_delete_file_with_invalid_token(self):
+    """
+    Test attempt to delete file with invalid token.
+    """
+    file_counts = File.objects.all().count()
+    # mannually add invalid credentials to all requests from client 
+    self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
+    # url for request        
+    url = '/delete-file/44'
+    # delete request to url
+    response = self.client.delete(url)
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(File.objects.all().count(), file_counts)
+
+  def test_delete_file_without_token_header(self):
+    """
+    Test attempt to delete file without token header.
+    """
+    file_counts = File.objects.all().count()
+    # url for request        
+    url = '/delete-file/44'
+    # delete request to url
+    response = self.client.delete(url)
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
+    self.assertEqual(File.objects.all().count(), file_counts)
+
+  def test_delete_file_of_another_user(self):
+    """
+    Test attempt to delete file of another user.
+    """
+    file_counts = File.objects.all().count()
+    # test username
+    test_username = 'azalia'
+    # test file
+    file_to_delete_id = 34
+    file_to_delete = File.objects.get(id=file_to_delete_id)
+    # we can force authenticate user to bypass explicit token usage when we don't need to test it
+    user = User.objects.get(username=test_username)
+    self.client.force_authenticate(user=user)
+    # url for request 
+    url = '/delete-file/'+str(file_to_delete_id)
+    # delete request to url 
+    response = self.client.delete(url)
+    # test assertions
+    self.assertNotEqual(user.id, File.objects.get(id=file_to_delete_id).user)
+    self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    self.assertEqual(response.data['message'], 'You cannot delete files of other users.')
+    self.assertEqual(File.objects.all().count(), file_counts)
+    self.assertTrue(File.objects.all().filter(id=file_to_delete_id).exists())
+    self.assertTrue(os.path.exists(os.path.join(settings.MEDIA_ROOT, file_to_delete.file.name)))
+
+  def test_delete_file_without_file_id(self):
+    """
+    Test attempt to delete file without file id.
+    """
+    file_counts = File.objects.all().count()
+    # test username
+    test_username = 'azalia'
+    # url for request        
+    url = '/delete-file/'
+    # delete request to url
+    response = self.client.delete(url)
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     self.assertEqual(File.objects.all().count(), file_counts)
