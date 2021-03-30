@@ -13,6 +13,5 @@ branch = true
 [report]
 exclude_lines = 
   def __str__
-  def get_queryset
     
 show_missing = True

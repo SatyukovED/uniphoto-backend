@@ -16,7 +16,6 @@ NUMBER_NEXT_PAGES_TO_CHECK = 2
 """
   TODO:
   Test
-    - AllFilesListView
     - PostFileView
     - DeleteFileView 
 """
@@ -283,6 +282,124 @@ class UserFilesListViewTests(APITestCase):
 
     # url for request  
     url = '/user-files'
+    # get request to url with following all redirections 
+    response = self.client.get(url, format='json')
+
+    # test assertions
+    # assert that response data hasn't refer to previous page (as it's first page) 
+    self.assertTrue(response.data['previous'] is None)
+    # assert that response data has refer to next page (is not None) if number of pages is more than 1 
+    has_next = num_pages > 1 
+    self.assertEqual(response.data['next'] is not None, has_next)
+
+    # check redirection to next page
+    visited_pages = 1
+    while visited_pages <= NUMBER_NEXT_PAGES_TO_CHECK and visited_pages <= num_pages:
+        next_url = response.data['next']
+        if next_url is not None:
+            response = self.client.get(next_url, format='json')
+            visited_pages += 1
+            self.assertTrue(response.data['previous'] is not None)
+        else:
+            break
+
+    url += '?page={}'.format(num_pages)
+    response = self.client.get(url, format='json')
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+    # assert that response data hasn't refer to next page (is None) 
+    self.assertTrue(response.data['next'] is None)
+
+
+class AllFilesListViewTests(APITestCase):
+
+  def test_get_all_files_list_with_valid_token(self):
+    """
+    Attempt to get all files list with valid token.
+    """
+    # test username
+    test_username = 'paulina'
+    # we can force authenticate user to bypass explicit token usage when we don't need to test it
+    test_user = User.objects.get(username=test_username)
+    self.client.force_authenticate(user=test_user)
+    # url for request        
+    url = '/all-files'
+    # get request to url
+    response = self.client.get(url, format='json')
+    # test assertion
+    self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+  def test_get_all_files_list_with_invalid_token(self):
+    """
+    Attempt to get all files list with invalid token.
+    """
+    # mannually add invalid credentials to all requests from client 
+    self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
+    # url for request        
+    url = '/all-files'
+    # get request to url 
+    response = self.client.get(url, format='json')
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+
+  def test_get_all_files_list_without_token_header(self):
+    """
+    Attempt to get all files list without token header.
+    """
+    # url for request        
+    url = '/all-files'
+    # get request to url 
+    response = self.client.get(url, format='json')
+    # test assertions
+    self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
+
+  def test_get_all_files_list_returns_valid_data(self):
+    """
+    Attempt to get all files list that return valid data.
+    """
+    # test username
+    test_username = 'paulina'
+    # we can force authenticate user to bypass explicit token usage when we don't need to test it
+    test_user = User.objects.get(username=test_username)
+    self.client.force_authenticate(user=test_user)
+    # url for request  
+    url = '/all-files'
+    # get request to url 
+    response = self.client.get(url, format='json')
+
+    # test assertions
+    # assert that result contains all required fields (they are presented in serializers classes)
+    first_file_data = response.data['results'][0]
+    self.assertTrue('id' in first_file_data)
+    self.assertTrue('username' in first_file_data)
+    self.assertTrue('file' in first_file_data)
+    self.assertTrue('post_date' in first_file_data)
+    
+    # assert that results contains only 10 elements (page size)
+    self.assertEqual(len(response.data['results']), settings.REST_FRAMEWORK['PAGE_SIZE'])
+
+    # AllFilesListView sorts results by id in descending order so we can assert that all ids are sorted
+    all_page_ids = [user_file['id'] for user_file in response.data['results']]
+    ids_iterator = iter(all_page_ids)
+    _ = ids_iterator.__next__()
+    self.assertTrue(all(prev_idx > next_idx for prev_idx, next_idx in zip(all_page_ids, ids_iterator)))
+
+  def test_get_all_files_list_returns_valid_redirection_chains(self):
+    """
+    Attempt to get all files list that return correct redirection chains.
+    """
+    # test username
+    test_username = 'paulina'
+    # we can force authenticate user to bypass explicit token usage
+    test_user = User.objects.get(username=test_username)
+    self.client.force_authenticate(user=test_user)
+
+    # calculate number of pages
+    num_pages = math.ceil(File.objects.all().count() / settings.REST_FRAMEWORK['PAGE_SIZE'])
+
+    # url for request  
+    url = '/all-files'
     # get request to url with following all redirections 
     response = self.client.get(url, format='json')
 
