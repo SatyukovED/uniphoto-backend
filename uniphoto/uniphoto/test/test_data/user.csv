@@ -1,4 +1,3 @@
 username,email,password,is_superuser,is_staff,is_active,first_name,last_name,date_joined
 paulina,paulina@uniphoto.com,pbkdf2_sha256$216000$2lmhgzY1h6P9$NH9DpJAo1H7/D0aClpetKoVnVeKPNUrWURTGmRDYh9U=,t,t,t,"","",2021-03-29 21:11:58.720681+03
 azalia,azalia@uniphoto.com,pbkdf2_sha256$216000$s1xu4sY14SIX$2WrN1lt2rkOsmvbEwKoyzRHXUomh/Z7vTVHX/xkfWEw=,f,f,t,"","",2021-03-29 21:13:28.154121+03
-ended_license,user_with_ended_license@uniphoto.com,pbkdf2_sha256$216000$TvfT8sTk0n9Q$EB2xy4QEvDZla4QBdh1lkUFMAxSPudzFL7DUllSDUns=,f,f,t,"","",2021-01-30 15:07:30.841176+03

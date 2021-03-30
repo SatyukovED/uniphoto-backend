@@ -137,12 +137,12 @@ class TrialLicenseCheckViewTests(APITestCase):
     # test assertion
     self.assertEqual(response.data['days_to_license_end'], days_to_license_end)
 
-  def test_check_trial_license_for_user_with_ended_license(self):
+  def test_check_trial_license_with_non_default_license_duratio(self):
     """
-    Test attempt to check trial license for user with ended license.
+    Test attempt to check trial license  with default license duration (!= 30 days).
     """
     # test user
-    test_username = 'ended_license'
+    test_username = 'azalia'
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
@@ -150,15 +150,17 @@ class TrialLicenseCheckViewTests(APITestCase):
     # calculate days to license end
     datetime_now = timezone.now()
     datetime_joined = test_user.date_joined 
-    license_duration = 30
+    license_duration = 15
     days_to_license_end =  license_duration - (datetime_now - datetime_joined).days
     if days_to_license_end < 0:
       days_to_license_end = 0
 
     # url for request        
     url = '/trial-license-check'
-    # get request to url 
-    response = self.client.generic(method='GET', path=url, content_type='application/json')
+    # data for request
+    data = {'license_duration': license_duration}
+    # get request to url with data in json format 
+    response = self.client.generic(method='GET', path=url, data=json.dumps(data), content_type='application/json')
     # test assertion
     self.assertEqual(response.data['days_to_license_end'], days_to_license_end)
 
