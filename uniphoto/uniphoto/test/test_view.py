@@ -18,7 +18,6 @@ NUMBER_NEXT_PAGES_TO_CHECK = 2
 """
   TODO:
   Test
-    - PostFileView
     - DeleteFileView 
 """
 
@@ -34,10 +33,10 @@ class UserDetailsViewTests(APITestCase):
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
-    # url for request        
+    # url for request 
     url = '/user-details'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     self.assertEqual(response.data, {'email': 'azalia@uniphoto.com', 'username': 'azalia'})
@@ -48,22 +47,22 @@ class UserDetailsViewTests(APITestCase):
     """
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
-    # url for request        
+    # url for request 
     url = '/user-details'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
 
   def test_get_user_details_without_token_header(self):
     """
     Test attempt to get user details without token header.
     """
-    # url for request        
+    # url for request
     url = '/user-details'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
@@ -87,12 +86,12 @@ class TrialLicenseCheckViewTests(APITestCase):
     datetime_now = timezone.now()
     datetime_joined = test_user.date_joined 
     license_duration = 30
-    days_to_license_end =  license_duration - (datetime_now - datetime_joined).days
+    days_to_license_end = license_duration - (datetime_now - datetime_joined).days
 
-    # url for request        
+    # url for request
     url = '/trial-license-check'
     # get request to url 
-    response = self.client.generic(method='GET', path=url, content_type='application/json')
+    response = self.client.generic(method='GET', path=url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     self.assertEqual(response.data['days_to_license_end'], days_to_license_end)
@@ -113,9 +112,9 @@ class TrialLicenseCheckViewTests(APITestCase):
     datetime_now = timezone.now()
     datetime_joined = test_user.date_joined 
     license_duration = 15
-    days_to_license_end =  license_duration - (datetime_now - datetime_joined).days
+    days_to_license_end = license_duration - (datetime_now - datetime_joined).days
 
-    # url for request        
+    # url for request
     url = '/trial-license-check'
     # data for request
     data = {'license_duration': license_duration}
@@ -139,14 +138,14 @@ class TrialLicenseCheckViewTests(APITestCase):
     datetime_now = timezone.now()
     datetime_joined = test_user.date_joined 
     license_duration = 30
-    days_to_license_end =  license_duration - (datetime_now - datetime_joined).days
+    days_to_license_end = license_duration - (datetime_now - datetime_joined).days
     # test assertion
     self.assertTrue(days_to_license_end < 0)
 
-    # url for request        
+    # url for request
     url = '/trial-license-check'
     # get request to url 
-    response = self.client.generic(method='GET', path=url, content_type='application/json')
+    response = self.client.generic(method='GET', path=url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     self.assertEqual(response.data['days_to_license_end'], 0)
@@ -157,22 +156,22 @@ class TrialLicenseCheckViewTests(APITestCase):
     """
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
-    # url for request        
+    # url for request
     url = '/trial-license-check'
     # get request to url 
-    response = self.client.generic(method='GET', path=url, content_type='application/json')
+    response = self.client.generic(method='GET', path=url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
 
   def test_check_trial_license_without_token_header(self):
     """
     Test attempt to check trial license without token header.
     """
-    # url for request        
+    # url for request
     url = '/trial-license-check'
     # get request to url 
-    response = self.client.generic(method='GET', path=url, content_type='application/json')
+    response = self.client.generic(method='GET', path=url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
@@ -189,10 +188,10 @@ class UserFilesListViewTests(APITestCase):
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
-    # url for request        
+    # url for request
     url = '/user-files'
     # get request to url
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertion
     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -202,22 +201,22 @@ class UserFilesListViewTests(APITestCase):
     """
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
-    # url for request        
+    # url for request
     url = '/user-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
 
   def test_get_user_files_list_without_token_header(self):
     """
     Test attempt to get user files list without token header.
     """
-    # url for request        
+    # url for request
     url = '/user-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
@@ -231,10 +230,10 @@ class UserFilesListViewTests(APITestCase):
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
-    # url for request  
+    # url for request
     url = '/user-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
 
     # test assertions
     # assert that result contains all required fields (they are presented in serializers classes)
@@ -273,10 +272,10 @@ class UserFilesListViewTests(APITestCase):
     # calculate number of pages
     num_pages = math.ceil(File.objects.all().filter(user=test_user).count() / settings.REST_FRAMEWORK['PAGE_SIZE'])
 
-    # url for request  
+    # url for request
     url = '/user-files'
     # get request to url with following all redirections 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
 
     # test assertions
     # assert that response data hasn't refer to previous page (as it's first page) 
@@ -288,16 +287,16 @@ class UserFilesListViewTests(APITestCase):
     # check redirection to next page
     visited_pages = 1
     while visited_pages <= NUMBER_NEXT_PAGES_TO_CHECK and visited_pages <= num_pages:
-        next_url = response.data['next']
-        if next_url is not None:
-            response = self.client.get(next_url, format='json')
-            visited_pages += 1
-            self.assertTrue(response.data['previous'] is not None)
-        else:
-            break
+      next_url = response.data['next']
+      if next_url is not None:
+        response = self.client.get(next_url)
+        visited_pages += 1
+        self.assertTrue(response.data['previous'] is not None)
+      else:
+        break
 
     url += '?page={}'.format(num_pages)
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     # assert that response data hasn't refer to next page (is None) 
     self.assertTrue(response.data['next'] is None)
@@ -314,10 +313,10 @@ class AllFilesListViewTests(APITestCase):
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
-    # url for request        
+    # url for request
     url = '/all-files'
     # get request to url
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertion
     self.assertEqual(response.status_code, status.HTTP_200_OK)
 
@@ -327,22 +326,22 @@ class AllFilesListViewTests(APITestCase):
     """
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
-    # url for request        
+    # url for request 
     url = '/all-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
 
   def test_get_all_files_list_without_token_header(self):
     """
     Test attempt to get all files list without token header.
     """
-    # url for request        
+    # url for request 
     url = '/all-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
@@ -356,10 +355,10 @@ class AllFilesListViewTests(APITestCase):
     # we can force authenticate user to bypass explicit token usage when we don't need to test it
     test_user = User.objects.get(username=test_username)
     self.client.force_authenticate(user=test_user)
-    # url for request  
+    # url for request
     url = '/all-files'
     # get request to url 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
 
     # test assertions
     # assert that result contains all required fields (they are presented in serializers classes)
@@ -394,10 +393,10 @@ class AllFilesListViewTests(APITestCase):
     # calculate number of pages
     num_pages = math.ceil(File.objects.all().count() / settings.REST_FRAMEWORK['PAGE_SIZE'])
 
-    # url for request  
+    # url for request
     url = '/all-files'
     # get request to url with following all redirections 
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
 
     # test assertions
     # assert that response data hasn't refer to previous page (as it's first page) 
@@ -409,16 +408,16 @@ class AllFilesListViewTests(APITestCase):
     # check redirection to next page
     visited_pages = 1
     while visited_pages <= NUMBER_NEXT_PAGES_TO_CHECK and visited_pages <= num_pages:
-        next_url = response.data['next']
-        if next_url is not None:
-            response = self.client.get(next_url, format='json')
-            visited_pages += 1
-            self.assertTrue(response.data['previous'] is not None)
-        else:
-            break
+      next_url = response.data['next']
+      if next_url is not None:
+        response = self.client.get(next_url)
+        visited_pages += 1
+        self.assertTrue(response.data['previous'] is not None)
+      else:
+        break
 
     url += '?page={}'.format(num_pages)
-    response = self.client.get(url, format='json')
+    response = self.client.get(url)
     self.assertEqual(response.status_code, status.HTTP_200_OK)
     # assert that response data hasn't refer to next page (is None) 
     self.assertTrue(response.data['next'] is None)
@@ -458,22 +457,22 @@ class PostFileViewTests(APITestCase):
     """
     # mannually add invalid credentials to all requests from client 
     self.client.credentials(HTTP_AUTHORIZATION='Token {}'.format('invalid_token'))
-    # url for request        
+    # url for request
     url = '/post-file'
     # post request to url
-    response = self.client.post(url, format='multipart')
+    response = self.client.post(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-    self.assertEqual(response.data, {'detail':  ErrorDetail(string='Invalid token.', code='authentication_failed')})
+    self.assertEqual(response.data, {'detail': ErrorDetail(string='Invalid token.', code='authentication_failed')})
 
   def test_create_file_without_token_header(self):
     """
     Test attempt to create file without token header.
     """
-    # url for request        
+    # url for request
     url = '/post-file'
     # post request to url
-    response = self.client.post(url, format='multipart')
+    response = self.client.post(url)
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
     self.assertEqual(response.data, {'detail': ErrorDetail(string='Authentication credentials were not provided.', code='not_authenticated')})
@@ -499,9 +498,7 @@ class PostFileViewTests(APITestCase):
     response = self.client.post(url, data, format='multipart')
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    self.assertEqual(response.data, {
-                                        'file': [ErrorDetail('Unsupported file extension. Supported file extensions: .jpg, .jpeg, .mp4', code='invalid')], 
-                                    })
+    self.assertEqual(response.data, {'file': [ErrorDetail('Unsupported file extension. Supported file extensions: .jpg, .jpeg, .mp4', code='invalid')]})
     self.assertEqual(File.objects.all().count(), file_counts)
     self.assertNotEqual(File.objects.all().latest('id').file.name, test_filename)
     self.assertFalse(os.path.exists(os.path.join(settings.MEDIA_ROOT, test_filename)))
@@ -524,9 +521,7 @@ class PostFileViewTests(APITestCase):
     response = self.client.post(url, data, format='multipart')
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    self.assertEqual(response.data, {
-                                        'file': [ErrorDetail('The submitted data was not a file. Check the encoding type on the form.', code='invalid')], 
-                                    })
+    self.assertEqual(response.data, {'file': [ErrorDetail('The submitted data was not a file. Check the encoding type on the form.', code='invalid')]})
     self.assertEqual(File.objects.all().count(), file_counts)
 
   def test_create_file_with_blank_fields(self):
@@ -547,9 +542,7 @@ class PostFileViewTests(APITestCase):
     response = self.client.post(url, data, format='json')
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    self.assertEqual(response.data, {
-                                        'file': [ErrorDetail('This field may not be null.', code='null')], 
-                                    })
+    self.assertEqual(response.data, {'file': [ErrorDetail('This field may not be null.', code='null')]})
     self.assertEqual(File.objects.all().count(), file_counts)
 
   def test_create_file_without_fields(self):
@@ -570,7 +563,5 @@ class PostFileViewTests(APITestCase):
     response = self.client.post(url, data, format='multipart')
     # test assertions
     self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-    self.assertEqual(response.data, {
-                                        'file': [ErrorDetail('No file was submitted.', code='required')], 
-                                    })
+    self.assertEqual(response.data, {'file': [ErrorDetail('No file was submitted.', code='required')]})
     self.assertEqual(File.objects.all().count(), file_counts)
