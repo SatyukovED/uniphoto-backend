@@ -1,18 +1,18 @@
 [run]
 source = .
 omit =
-    */coverage*
-    */htmlcov/*
-    ./backend/*
-    ./uniphoto/test/*
-    ./manage.py
-    ./uniphoto/validators.py
-    */migrations/*
+  */coverage*
+  */htmlcov/*
+  ./backend/*
+  ./uniphoto/test/*
+  ./manage.py
+  */migrations/*
 
 branch = true
 
 [report]
 exclude_lines = 
-    def get_queryset
+  def __str__
+  def get_queryset
     
 show_missing = True

@@ -11,7 +11,22 @@ class TestFile:
 
 class ValidateFileExtensionTests(TestCase):
 
-  def test_validate_file_extension(self):
+  def test_validate_file_extension_for_file_with_supported_extension(self):
+    """
+    Test attempt to validate file with supported extension.
+    """
+    test_file = TestFile('', 'testfile.mp4')
+    error_raised = False
+    try:
+      validate_file_extension(test_file)
+    except:
+      error_raised = True
+    self.assertFalse(error_raised)
+      
+  def test_validate_file_extension_for_file_with_unsupported_extension(self):
+    """
+    Test attempt to validate file with unsupported extension.
+    """
     test_file = TestFile('', 'testfile.mp3')
     try:
       validate_file_extension(test_file)
