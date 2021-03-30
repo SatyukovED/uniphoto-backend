@@ -31,4 +31,4 @@ class ValidateFileExtensionTests(TestCase):
     try:
       validate_file_extension(test_file)
     except ValidationError as error:
-      self.assertEqual(error.message_dict['message'], ['Unsupported file extension. Supported file extensions: .jpg, .jpeg, .mp4'])
+      self.assertEqual(error.messages[0], 'Unsupported file extension. Supported file extensions: .jpg, .jpeg, .mp4')
